@@ -1,13 +1,5 @@
-function conversionBetweenDegRad(value) {
-  if (
-    document.getElementsByClassName("deg-rad-button")[0].textContent === "DEG"
-  ) {
-    return (value * Math.PI) / 180;
-  } else {
-    return value;
-  }
-}
-export function replaceAll(newStr, secondOperationToggle) {
+import { conversionBetweenDegRad } from "./MathematicalConversionOperations.js";
+export function replaceAll(newStr: string, secondOperationToggle: number) {
   newStr = newStr.replace(`X`, `*`);
   newStr = newStr.replace(`÷`, `/`);
   newStr = newStr.replace("mod", "%");
@@ -55,8 +47,11 @@ export function replaceAll(newStr, secondOperationToggle) {
   return newStr;
 }
 
-export function degreeRadianChange(ref) {
-  ref.textContent = ref.textContent.trim();
+export function degreeRadianChange(ref: EventTarget) {
+  //this
+  if ("textContent" in ref) {
+    ref.textContent = (ref.textContent as string).trim();
 
-  ref.textContent = ref.textContent === "DEG" ? "RAD" : "DEG";
+    ref.textContent = ref.textContent === "DEG" ? "RAD" : "DEG";
+  }
 }

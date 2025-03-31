@@ -1,9 +1,6 @@
 import { fact } from "./modularMethods/MathematicalConversionOperations.js";
-import { opInclude } from "./modularMethods/BooleanOperation.js";
-import {
-  replaceAll,
-  degreeRadianChange,
-} from "./modularMethods/ReplacingStringOperation.js";
+import { htmlElement } from "./modularMethods/CommonElements.js";
+import { opInclude } from "./modularMethods/booleanOperation.js";
 import {
   handleMC,
   handleMR,
@@ -12,118 +9,117 @@ import {
 } from "./modularMethods/OperationsRelatedToMemory.js";
 
 import { handleHistory } from "./modularMethods/OperationsRelatedToHistory.js";
-class Calculator {
+
+import {
+  replaceAll,
+  degreeRadianChange,
+} from "./modularMethods/ReplacingStringOperation.js";
+
+export class Calculator {
+  validKeyboardCharacters = [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "+",
+    "-",
+    "/",
+    "X",
+    "%",
+    "e",
+    "^",
+    ".",
+    "(",
+    ")",
+  ];
+  calculatorInput: HTMLInputElement;
+  secondOperationToggle: number;
+  regex: RegExp;
+  darkLightFlag: number;
   constructor() {
-    this.validKeyboardCharacters = [
-      "0",
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "+",
-      "-",
-      "/",
-      "X",
-      "%",
-      "e",
-      "^",
-      ".",
-      "(",
-      ")",
-    ];
-    this.calculatorInput = document.querySelector(`.calculator-input`);
+    this.calculatorInput = document.querySelector(
+      `.calculator-input`
+    ) as HTMLInputElement;
     this.secondOperationToggle = 0;
     this.calculatorInput.value = ``;
-    this.regex = "";
+    this.regex = /d/;
     this.darkLightFlag = 0;
-    this.initializeEventListener();
+    this.initiateEventListener();
   }
 
-  //initialized all event listener
-  initializeEventListener() {
-    document
-      .getElementsByClassName("calculator-buttons")[0]
-      .addEventListener("click", (event) => {
-        this.handleClickOnCalculator(event);
-      });
-
-    document
-      .getElementsByClassName("remove-data")[0]
-      .addEventListener("click", () => {
-        this.removeDataFromInput();
-      });
-
-    document
-      .getElementsByClassName("2nd-button")[0]
-      .addEventListener("click", (event) => {
-        this.handleSecondSetOfOperations(event);
-      });
-
-    document
-      .getElementsByClassName("trig-func")[0]
-      .addEventListener("change", (event) => {
-        this.handleTrignometryFunction(event.target.value);
-      });
-
-    document
-      .getElementsByClassName("advance-func")[0]
-      .addEventListener("change", (event) => {
-        this.handleAdvancedFunction(event.target.value);
-      });
-
-    document
-      .getElementsByClassName("deg-rad-button")[0]
-      .addEventListener("click", (event) => {
-        degreeRadianChange(event.target);
-      });
-
-    document
-      .getElementsByClassName("f-e-button")[0]
-      .addEventListener("click", () => {
-        this.handleFractionToExponential();
-      });
-
-    document.getElementById("mc-button").addEventListener("click", () => {
-      handleMC.call(this);
+  initiateEventListener() {
+    htmlElement.calculatorButtons.addEventListener("click", (event) => {
+      this.handleClickOnCalculator(event);
     });
 
-    document.getElementById("mr-button").addEventListener("click", () => {
+    htmlElement.removeDataButton.addEventListener("click", () => {
+      this.removeDataFromInput();
+    });
+
+    htmlElement.secondButtonOperation.addEventListener("click", (event) => {
+      this.handleSecondSetOfOperations(event as Event);
+    });
+
+    htmlElement.trignometrySelectButton.addEventListener(
+      "change",
+      (event: Event) => {
+        if ("value" in event.target!)
+          this.handleTrignometryFunction(event.target.value as string);
+      }
+    );
+
+    htmlElement.advanceSelectButton.addEventListener(
+      "change",
+      (event: Event) => {
+        if ("value" in event.target!)
+          this.handleAdvancedFunction(event.target.value as string);
+      }
+    );
+
+    htmlElement.degRadButton.addEventListener("click", (event: Event) => {
+      degreeRadianChange(event.target as EventTarget);
+    });
+
+    htmlElement.FEButton.addEventListener("click", (event: Event) => {
+      this.handleFractionToExponential(event);
+    });
+
+    document.getElementById("mc-button")!.addEventListener("click", () => {
+      handleMC();
+    });
+
+    document.getElementById("mr-button")!.addEventListener("click", () => {
       handleMR.call(this);
     });
 
     document.querySelectorAll("#M-plus-minus-button").forEach((element) => {
       element.addEventListener("click", (event) => {
-        handleMplusAndMinus.call(this, event.target);
+        handleMplusAndMinus.call(this, event.target as EventTarget);
       });
     });
-
-    document.getElementById("ms-button").addEventListener("click", () => {
+    document.getElementById("ms-button")!.addEventListener("click", () => {
       handleMS.call(this);
     });
 
-    document
-      .getElementsByClassName("view-history")[0]
-      .addEventListener("click", () => {
-        handleHistory.call(this);
-      });
+    htmlElement.viewHistoryButton.addEventListener("click", () => {
+      handleHistory.call(this);
+    });
 
-    document
-      .getElementsByClassName("dark-light-button")[0]
-      .addEventListener("click", () => {
-        this.handleDarkLightMode();
-      });
+    htmlElement.darkLightButton.addEventListener("click", () => {
+      this.handleDarkLightMode();
+    });
 
     document.addEventListener("keyup", (event) => {
       this.handleKeyboardInput(event);
     });
   }
 
-  //added to handle the situation when user clicks on delete button
   removeDataFromInput() {
     let inputVal = this.calculatorInput.value;
     if (inputVal === `ERROR`) {
@@ -134,8 +130,8 @@ class Calculator {
   }
 
   //added to event delegate click event for all buttons
-  handleClickOnCalculator(event) {
-    let e = event.target;
+  handleClickOnCalculator(event: Event) {
+    let e = event.target as HTMLElement;
     if (e.classList.value === "calculator-buttons") return;
 
     let val = e.textContent;
@@ -143,7 +139,7 @@ class Calculator {
     if (e.className === "remove-data") {
       return;
     }
-    val = val.trim(); //it automatically added some white space so had to add it to remove them
+    val = val!.trim(); //it automatically added some white space so had to add it to remove them
 
     switch (val) {
       case "=":
@@ -203,6 +199,7 @@ class Calculator {
         if (val == `ln` || val == `log`) this.calculatorInput.value += `(`;
     }
   }
+
   //added to handle the operation 1/x
   handleDivisionToOne() {
     this.regex = /(\d+)\.?(\d*)$/g;
@@ -251,39 +248,26 @@ class Calculator {
   }
 
   //added as we have to switch the keyboard content from x2 - x3 and square root to cube root
-  handleSecondSetOfOperations(e) {
-    document
-      .getElementsByClassName("2nd-button")[0]
-      .classList.toggle("selected");
+  handleSecondSetOfOperations(e: Event) {
+    htmlElement.secondButtonOperation.classList.toggle("selected");
 
     if (this.secondOperationToggle === 0) {
-      document.getElementsByClassName(
-        "square-button"
-      )[0].innerHTML = `x<sup>3</sup>`;
-      document.getElementsByClassName(
-        "square-root-button"
-      )[0].innerHTML = `<sup>3</sup>&Sqrt;x`;
+      htmlElement.squareOperationButton.innerHTML = `x<sup>3</sup>`;
+      htmlElement.squareRootOperationButton.innerHTML = `<sup>3</sup>&Sqrt;x`;
       this.secondOperationToggle = 1;
     } else {
-      document.getElementsByClassName(
-        "square-button"
-      )[0].innerHTML = `x<sup>2</sup>`;
-      document.getElementsByClassName(
-        "square-root-button"
-      )[0].innerHTML = `<sup>2</sup>&Sqrt;x`;
+      htmlElement.squareOperationButton.innerHTML = `x<sup>2</sup>`;
+      htmlElement.squareRootOperationButton.innerHTML = `<sup>2</sup>&Sqrt;x`;
       this.secondOperationToggle = 0;
     }
   }
-
   //common result evaluation required for result operation
-  resultFuncInitialEvaluation(newStr) {
+  resultFuncInitialEvaluation(newStr: string) {
     newStr = replaceAll(newStr, this.secondOperationToggle);
 
     if (this.calculatorInput.value.includes(`!`)) {
       this.regex = /(\d+)!/g;
-      newStr = newStr.replace(this.regex, (match, num) => {
-        return fact(+num);
-      });
+      newStr = newStr.replace(this.regex, (_, num) => `${fact(+num)}`);
     }
 
     this.regex = /\|([^|]+)\|/;
@@ -311,7 +295,7 @@ class Calculator {
         localStorage.setItem("history-array", JSON.stringify([]));
       }
 
-      let arr = JSON.parse(localStorage.getItem("history-array"));
+      let arr = JSON.parse(localStorage.getItem("history-array")!);
       arr.push([`${calculatorInputVal}`, `${this.calculatorInput.value}`]);
       localStorage.setItem("history-array", JSON.stringify(arr));
     } catch (err) {
@@ -324,7 +308,7 @@ class Calculator {
   signDegToggleFlagFunc() {
     let str = this.calculatorInput.value;
     if (str === "") return;
-    let input = [];
+    let input: string[] = [];
     for (let a of str) {
       input.push(a);
     }
@@ -363,7 +347,7 @@ class Calculator {
   }
 
   //added to handle the input status when a particular trignometry function is clicked on
-  handleTrignometryFunction(funcName) {
+  handleTrignometryFunction(funcName: string) {
     if (funcName === "Trignometry") return;
     this.regex = /(\d+)$/;
     if (this.regex.test(this.calculatorInput.value)) {
@@ -371,12 +355,12 @@ class Calculator {
     } else {
       this.calculatorInput.value += `${funcName}(`;
     }
-
-    document.getElementsByClassName("trig-func")[0].value = "Trignometry";
+    const trigElement = htmlElement.trignometrySelectButton as HTMLElement;
+    if ("value" in trigElement) trigElement.value = "Trignometry";
   }
 
   //added to handle the input status when a particular advanced function is clicked on
-  handleAdvancedFunction(funcName) {
+  handleAdvancedFunction(funcName: string) {
     if (funcName === "Function") return;
     this.regex = /(\d+)$/;
     if (this.regex.test(this.calculatorInput.value)) {
@@ -384,111 +368,118 @@ class Calculator {
     } else {
       this.calculatorInput.value += `${funcName}(`;
     }
-
-    document.getElementsByClassName("advance-func")[0].value = "Function";
+    const functionElement = htmlElement.advanceSelectButton;
+    if ("value" in functionElement) functionElement.value = "Function";
   }
 
   //added to handle f-e operation
+  handleFractionToExponential(ref: Event) {
+    let newRegex = /(\d+)$/g;
+    if (newRegex.test(this.calculatorInput.value)) {
+      this.regex = /(\d+)\.?(\d*)$/g;
+      this.calculatorInput.value = this.calculatorInput.value.replace(
+        this.regex,
+        (match, num1, num2) => {
+          console.log(num1, " ", num2);
 
-  handleFractionToExponential() {
-    this.regex = /(\d+)\.(\d*)$/g;
-    this.calculatorInput.value = this.calculatorInput.value.replace(
-      this.regex,
-      (match, num1, num2) => {
-        console.log(num1, " ", num2);
-
-        if (num1 === "0" && num2 !== "0") {
-          return `${num2.replace(/^0+/, "") || "0"}X10^-${num2.length}`;
-        } else {
-          if (num2 === "") {
-            let firstDigit = num1[0];
-            let remainingDigits = num1.slice(1, num1.length);
-            if (+remainingDigits === 0) remainingDigits = "0";
-            return `${firstDigit}.${remainingDigits}X10^${num1.length - 1}`;
-          } else return `${num1}${num2}X10^-${num2.length}`;
+          if (num1 === "0" && num2 !== "0") {
+            return `${num2.replace(/^0+/, "") || "0"}X10^-${num2.length}`;
+          } else {
+            if (num2 === "") {
+              let firstDigit = num1[0];
+              let remainingDigits = num1.slice(1, num1.length);
+              if (+remainingDigits === 0) remainingDigits = "0";
+              return `${firstDigit}.${remainingDigits}X10^${num1.length - 1}`;
+            } else return `${num1}${num2}X10^-${num2.length}`;
+          }
         }
-      }
-    );
+      );
+    } else {
+      return;
+    }
   }
 
   //added to handle the scenario when user clicks on dark to light mode
   handleDarkLightMode() {
-    document
-      .getElementsByClassName("dark-light-button")[0]
-      .classList.toggle("selected");
+    htmlElement.darkLightButton.classList.toggle("selected");
     this.calculatorInput.classList.toggle("dark-calculator-input");
     document.body.classList.toggle("dark-body");
-    document
-      .getElementsByClassName("enclosing-calculator")[0]
-      .classList.toggle("dark-enclosing-calculator");
-    document
-      .getElementsByClassName("dark-light-button")[0]
-      .classList.toggle("selected");
+    htmlElement.enclosingCalculatorDiv.classList.toggle(
+      "dark-enclosing-calculator"
+    );
+    htmlElement.darkLightButton.classList.toggle("selected");
 
     if (this.darkLightFlag === 0) {
       this.darkLightFlag = 1;
-      document
-        .getElementsByClassName("view-history")[0]
-        .setAttribute("src", "./images/history1.png");
-      document
-        .getElementsByClassName("dark-light-button")[0]
-        .setAttribute("src", "./images/brightness-and-contrast1.png");
-      document
-        .getElementsByClassName("remove-data-icon")[0]
-        .setAttribute("src", "./images/delete1.png");
-      document
-        .getElementsByClassName("trignometry-function-icon")[0]
-        .setAttribute("src", "./images/right-triangle1.png");
+      htmlElement.viewHistoryButton.setAttribute(
+        "src",
+        "../images/history1.png"
+      );
+
+      htmlElement.darkLightButton.setAttribute(
+        "src",
+        "../images/brightness-and-contrast1.png"
+      );
+      htmlElement.iconToRemoveData.setAttribute("src", "../images/delete1.png");
+      htmlElement.iconForTrignometryFunction.setAttribute(
+        "src",
+        "../images/right-triangle1.png"
+      );
       document.querySelectorAll(".calculator-buttons > div").forEach((e) => {
-        e.style.backgroundColor = "rgb(31, 32, 33)";
+        (e as HTMLElement).style.backgroundColor = "rgb(31, 32, 33)";
       });
       document.querySelectorAll("#calculator-buttons-numbers").forEach((e) => {
-        e.style.backgroundColor = "black";
+        (e as HTMLElement).style.backgroundColor = "black";
       });
 
       document
         .querySelectorAll(".trignometry-functions > div > select")
         .forEach((e) => {
-          e.style.color = "white";
+          (e as HTMLElement).style.color = "white";
         });
     } else {
       this.darkLightFlag = 0;
-      document
-        .getElementsByClassName("view-history")[0]
-        .setAttribute("src", "./images/history.png");
-      document
-        .getElementsByClassName("dark-light-button")[0]
-        .setAttribute("src", "./images/brightness-and-contrast.png");
-      document
-        .getElementsByClassName("remove-data-icon")[0]
-        .setAttribute("src", "./images/delete.png");
-      document
-        .getElementsByClassName("trignometry-function-icon")[0]
-        .setAttribute("src", "./images/right-triangle.png");
+      htmlElement.viewHistoryButton.setAttribute(
+        "src",
+        "../images/history.png"
+      );
+      htmlElement.darkLightButton.setAttribute(
+        "src",
+        "../images/brightness-and-contrast.png"
+      );
+      htmlElement.iconToRemoveData.setAttribute("src", "./images/delete.png");
+      htmlElement.iconForTrignometryFunction.setAttribute(
+        "src",
+        "../images/right-triangle.png"
+      );
       document.querySelectorAll(".calculator-buttons > div").forEach((e) => {
-        e.style.backgroundColor = "rgb(248, 249, 250)";
+        (e as HTMLElement).style.backgroundColor = "rgb(248, 249, 250)";
       });
       document.querySelectorAll("#calculator-buttons-numbers").forEach((e) => {
-        e.style.backgroundColor = "white";
+        (e as HTMLElement).style.backgroundColor = "white";
       });
       document
         .querySelectorAll(".trignometry-functions > div > select")
         .forEach((e) => {
-          e.style.color = "black";
+          (e as HTMLElement).style.color = "black";
         });
     }
   }
 
   //added to induce keyboard input feature
-  handleKeyboardInput(event) {
-    if (event.key === "Backspace" || event.key === "Delete") {
+  handleKeyboardInput(event: Event) {
+    let keyValue: string = "";
+    if ("key" in event) {
+      keyValue = event.key as string;
+    }
+    if (keyValue === "Backspace" || keyValue === "Delete") {
       this.calculatorInput.value = this.calculatorInput.value.slice(0, -1);
     }
-    if (event.key === "=" || event.key === "Enter") {
+    if (keyValue === "=" || keyValue === "Enter") {
       this.resultFunc();
     }
-    if (this.validKeyboardCharacters.indexOf(event.key) !== -1) {
-      this.calculatorInput.value += event.key;
+    if (this.validKeyboardCharacters.indexOf(keyValue) !== -1) {
+      this.calculatorInput.value += keyValue;
     }
   }
 }
