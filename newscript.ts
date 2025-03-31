@@ -12,6 +12,28 @@ import {
 } from "./modularMethods/ReplacingStringOperation.js";
 
 class Calculator {
+  validKeyboardCharacters = [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "+",
+    "-",
+    "/",
+    "X",
+    "%",
+    "e",
+    "^",
+    ".",
+    "(",
+    ")",
+  ];
   calculatorInput: HTMLInputElement;
   secondOperationToggle: number;
   regex: RegExp;
@@ -99,6 +121,7 @@ class Calculator {
     }
   }
 
+  //added to event delegate click event for all buttons
   handleClickOnCalculator(event: Event) {
     let e = event.target as HTMLElement;
     if (e.classList.value === "calculator-buttons") return;
@@ -169,6 +192,7 @@ class Calculator {
     }
   }
 
+  //added to handle the operation 1/x
   handleDivisionToOne() {
     this.regex = /(\d+)\.?(\d*)$/g;
 
@@ -183,6 +207,7 @@ class Calculator {
     } else this.calculatorInput.value += `1/`;
   }
 
+  //added to handle operation 10^x
   handleTenRaiseToX() {
     this.regex = /(\d+)\.?(\d*)$/g;
     if (this.regex.test(this.calculatorInput.value)) {
@@ -198,6 +223,7 @@ class Calculator {
     }
   }
 
+  //added to handle square root and cube root operation
   handleRoot() {
     this.regex = /(\d+)$/;
 
@@ -213,6 +239,7 @@ class Calculator {
     }
   }
 
+  //added as we have to switch the keyboard content from x2 - x3 and square root to cube root
   handleSecondSetOfOperations(e: Event) {
     htmlElement.secondButtonOperation.classList.toggle("selected");
 
@@ -226,7 +253,7 @@ class Calculator {
       this.secondOperationToggle = 0;
     }
   }
-
+  //common result evaluation required for result operation
   resultFuncInitialEvaluation(newStr: string) {
     newStr = replaceAll(newStr, this.secondOperationToggle);
 
@@ -248,6 +275,7 @@ class Calculator {
     return newStr;
   }
 
+  //added to induce the evaluation using eval function
   resultFunc() {
     try {
       let calculatorInputVal = this.calculatorInput.value;
@@ -268,6 +296,7 @@ class Calculator {
     }
   }
 
+  //used to handle the +/- operation
   signDegToggleFlagFunc() {
     let str = this.calculatorInput.value;
     if (str === "") return;
@@ -309,6 +338,7 @@ class Calculator {
     this.calculatorInput.value = str;
   }
 
+  //added to handle the input status when a particular trignometry function is clicked on
   handleTrignometryFunction(funcName: string) {
     if (funcName === "Trignometry") return;
     this.regex = /(\d+)$/;
@@ -321,6 +351,7 @@ class Calculator {
     if ("value" in trigElement) trigElement.value = "Trignometry";
   }
 
+  //added to handle the input status when a particular advanced function is clicked on
   handleAdvancedFunction(funcName: string) {
     if (funcName === "Function") return;
     this.regex = /(\d+)$/;
@@ -333,6 +364,7 @@ class Calculator {
     if ("value" in functionElement) functionElement.value = "Function";
   }
 
+  //added to handle f-e operation
   handleFractionToExponential(ref: Event) {
     let newRegex = /(\d+)$/g;
     if (newRegex.test(this.calculatorInput.value)) {
@@ -359,6 +391,7 @@ class Calculator {
     }
   }
 
+  //added to handle single memory operation
   handleMR() {
     let val = localStorage.getItem("calculationOutput");
     if (val) this.calculatorInput.value += val;
@@ -392,6 +425,7 @@ class Calculator {
     localStorage.setItem("calculationOutput", num);
   }
 
+  //added to handle the scenario where user clicks on see history button
   handleHistory() {
     (htmlElement.textBoxInput as HTMLInputElement).style.display = "none";
     (htmlElement.advanceOperationsSection as HTMLDivElement).style.display =
@@ -422,6 +456,7 @@ class Calculator {
     this.showHistoryContent();
   }
 
+  //added to handle the scenario when user clicks on dark to light mode
   handleDarkLightMode() {
     htmlElement.darkLightButton.classList.toggle("selected");
     this.calculatorInput.classList.toggle("dark-calculator-input");
@@ -487,7 +522,7 @@ class Calculator {
         });
     }
   }
-
+  //added to show the basic history content in the history page
   showHistoryContent() {
     document.getElementsByClassName(
       "history-section"
@@ -523,11 +558,13 @@ class Calculator {
       });
   }
 
+  //handle the scenario when user clicks on clear button in the see history page
   handleClearHistory() {
     localStorage.setItem("history-array", JSON.stringify([]));
     this.showHistoryContent();
   }
 
+  //added to implement feature -  user clicks on a particular history the data is automatically added to calculator input
   handleClickOnHistoryData(value: string) {
     handleClosingHistorySection();
     this.regex = /(\d+)$/;
@@ -538,30 +575,8 @@ class Calculator {
       this.calculatorInput.value += `${value}`;
     }
   }
-
+  //added to induce keyboard input feature
   handleKeyboardInput(event: Event) {
-    const validKeyboardCharacters = [
-      "0",
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "+",
-      "-",
-      "/",
-      "X",
-      "%",
-      "e",
-      "^",
-      ".",
-      "(",
-      ")",
-    ];
     let keyValue: string = "";
     if ("key" in event) {
       keyValue = event.key as string;
@@ -572,7 +587,7 @@ class Calculator {
     if (keyValue === "=" || keyValue === "Enter") {
       this.resultFunc();
     }
-    if (validKeyboardCharacters.indexOf(keyValue) !== -1) {
+    if (this.validKeyboardCharacters.indexOf(keyValue) !== -1) {
       this.calculatorInput.value += keyValue;
     }
   }
