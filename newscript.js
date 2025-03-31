@@ -6,8 +6,12 @@ import {
 } from "./modularMethods/ReplacingStringOperation.js";
 import {
   handleMC,
-  handleClosingHistorySection,
+  handleMR,
+  handleMS,
+  handleMplusAndMinus,
 } from "./modularMethods/OperationsRelatedToMemory.js";
+
+import { handleHistory } from "./modularMethods/OperationsRelatedToHistory.js";
 class Calculator {
   constructor() {
     this.validKeyboardCharacters = [
@@ -37,6 +41,11 @@ class Calculator {
     this.calculatorInput.value = ``;
     this.regex = "";
     this.darkLightFlag = 0;
+    this.initializeEventListener();
+  }
+
+  //initialized all event listener
+  initializeEventListener() {
     document
       .getElementsByClassName("calculator-buttons")[0]
       .addEventListener("click", (event) => {
@@ -80,27 +89,27 @@ class Calculator {
       });
 
     document.getElementById("mc-button").addEventListener("click", () => {
-      handleMC();
+      handleMC.call(this);
     });
 
     document.getElementById("mr-button").addEventListener("click", () => {
-      this.handleMR();
+      handleMR.call(this);
     });
 
     document.querySelectorAll("#M-plus-minus-button").forEach((element) => {
       element.addEventListener("click", (event) => {
-        this.handleMplusAndMinus(event.target);
+        handleMplusAndMinus.call(this, event.target);
       });
     });
 
     document.getElementById("ms-button").addEventListener("click", () => {
-      this.handleMS();
+      handleMS.call(this);
     });
 
     document
       .getElementsByClassName("view-history")[0]
       .addEventListener("click", () => {
-        this.handleHistory();
+        handleHistory.call(this);
       });
 
     document
@@ -114,6 +123,7 @@ class Calculator {
     });
   }
 
+  //added to handle the situation when user clicks on delete button
   removeDataFromInput() {
     let inputVal = this.calculatorInput.value;
     if (inputVal === `ERROR`) {
@@ -123,6 +133,7 @@ class Calculator {
     }
   }
 
+  //added to event delegate click event for all buttons
   handleClickOnCalculator(event) {
     let e = event.target;
     if (e.classList.value === "calculator-buttons") return;
@@ -192,7 +203,7 @@ class Calculator {
         if (val == `ln` || val == `log`) this.calculatorInput.value += `(`;
     }
   }
-
+  //added to handle the operation 1/x
   handleDivisionToOne() {
     this.regex = /(\d+)\.?(\d*)$/g;
 
@@ -207,6 +218,7 @@ class Calculator {
     } else this.calculatorInput.value += `1/`;
   }
 
+  //added to handle operation 10^x
   handleTenRaiseToX() {
     this.regex = /(\d+)\.?(\d*)$/g;
     if (this.regex.test(this.calculatorInput.value)) {
@@ -222,6 +234,7 @@ class Calculator {
     }
   }
 
+  //added to handle square root and cube root operation
   handleRoot() {
     this.regex = /(\d+)$/;
 
@@ -237,6 +250,7 @@ class Calculator {
     }
   }
 
+  //added as we have to switch the keyboard content from x2 - x3 and square root to cube root
   handleSecondSetOfOperations(e) {
     document
       .getElementsByClassName("2nd-button")[0]
@@ -261,6 +275,7 @@ class Calculator {
     }
   }
 
+  //common result evaluation required for result operation
   resultFuncInitialEvaluation(newStr) {
     newStr = replaceAll(newStr, this.secondOperationToggle);
 
@@ -284,6 +299,7 @@ class Calculator {
     return newStr;
   }
 
+  //added to induce the evaluation using eval function
   resultFunc() {
     try {
       let calculatorInputVal = this.calculatorInput.value;
@@ -304,6 +320,7 @@ class Calculator {
     }
   }
 
+  //used to handle the +/- operation
   signDegToggleFlagFunc() {
     let str = this.calculatorInput.value;
     if (str === "") return;
@@ -345,6 +362,7 @@ class Calculator {
     this.calculatorInput.value = str;
   }
 
+  //added to handle the input status when a particular trignometry function is clicked on
   handleTrignometryFunction(funcName) {
     if (funcName === "Trignometry") return;
     this.regex = /(\d+)$/;
@@ -357,6 +375,7 @@ class Calculator {
     document.getElementsByClassName("trig-func")[0].value = "Trignometry";
   }
 
+  //added to handle the input status when a particular advanced function is clicked on
   handleAdvancedFunction(funcName) {
     if (funcName === "Function") return;
     this.regex = /(\d+)$/;
@@ -368,6 +387,8 @@ class Calculator {
 
     document.getElementsByClassName("advance-func")[0].value = "Function";
   }
+
+  //added to handle f-e operation
 
   handleFractionToExponential() {
     this.regex = /(\d+)\.(\d*)$/g;
@@ -390,68 +411,7 @@ class Calculator {
     );
   }
 
-  handleMR() {
-    let val = localStorage.getItem("calculationOutput");
-    if (val) this.calculatorInput.value += val;
-  }
-
-  handleMplusAndMinus(ref) {
-    let previousOutput = localStorage.getItem("calculationOutput");
-    let num = eval(
-      this.resultFuncInitialEvaluation(this.calculatorInput.value)
-    );
-
-    let val =
-      ref.className === "plus"
-        ? `${+num + +previousOutput}`
-        : `${+num - +previousOutput}`;
-
-    localStorage.setItem("calculationOutput", val);
-    this.calculatorInput.value = val;
-  }
-
-  handleMS() {
-    let num = eval(
-      this.resultFuncInitialEvaluation(this.calculatorInput.value)
-    );
-    localStorage.setItem("calculationOutput", num);
-  }
-
-  handleHistory() {
-    document.getElementsByClassName("text-box")[0].style.display = "none";
-    document.getElementsByClassName("advanced-operations")[0].style.display =
-      "none";
-    document.getElementsByClassName("calculator-buttons")[0].style.display =
-      "none";
-
-    let closingHistoryButton = document.createElement("img");
-    closingHistoryButton.setAttribute(
-      "class",
-      "imageHW hamburger-menu close-history"
-    );
-    if (this.darkLightFlag === 1) {
-      closingHistoryButton.setAttribute("src", "./images/cross.png");
-    } else {
-      closingHistoryButton.setAttribute("src", "./images/x.png");
-    }
-
-    closingHistoryButton.setAttribute("alt", "closing history section button");
-    closingHistoryButton.addEventListener("click", () => {
-      handleClosingHistorySection();
-    });
-    document
-      .getElementsByClassName("enclosing-calculator")[0]
-      .appendChild(closingHistoryButton);
-
-    let newElement = document.createElement("div");
-    newElement.setAttribute("class", "history-section");
-    document
-      .getElementsByClassName("enclosing-calculator")[0]
-      .appendChild(newElement);
-
-    this.showHistoryContent();
-  }
-
+  //added to handle the scenario when user clicks on dark to light mode
   handleDarkLightMode() {
     document
       .getElementsByClassName("dark-light-button")[0]
@@ -519,54 +479,7 @@ class Calculator {
     }
   }
 
-  showHistoryContent() {
-    let newElement = document.getElementsByClassName("history-section")[0];
-    newElement.innerHTML = `<div class = "history-title-clear-button">
-          <div class = "history-title">History</div>
-          <div class = "clear-history-button">
-          
-          <button class = "clear-history-button">Clear</button>
-          </div>
-          </div>`;
-    let arr = JSON.parse(localStorage.getItem("history-array"));
-    let historyHtmlCode = "";
-    for (let i = arr.length - 1; i >= 0; i--) {
-      historyHtmlCode += `<div class = "history-data" id = "${arr[i][1]}">
-              <div>${arr[i][0]} &nbsp;= &nbsp;</div>
-              <div>${arr[i][1]} </div>
-          </div>`;
-    }
-    newElement.innerHTML += historyHtmlCode;
-
-    document.querySelectorAll(".history-data").forEach((element) => {
-      element.addEventListener("click", (event) => {
-        this.handleClickOnHistoryData(event.target.id);
-      });
-    });
-
-    document
-      .getElementsByClassName("clear-history-button")[0]
-      .addEventListener("click", () => {
-        this.handleClearHistory();
-      });
-  }
-
-  handleClearHistory() {
-    localStorage.setItem("history-array", JSON.stringify([]));
-    this.showHistoryContent();
-  }
-
-  handleClickOnHistoryData(value) {
-    handleClosingHistorySection();
-    this.regex = /(\d+)$/;
-    if (this.regex.test(this.calculatorInput.value)) {
-      this.calculatorInput.value += `X`;
-      this.calculatorInput.value += `${value}`;
-    } else {
-      this.calculatorInput.value += `${value}`;
-    }
-  }
-
+  //added to induce keyboard input feature
   handleKeyboardInput(event) {
     if (event.key === "Backspace" || event.key === "Delete") {
       this.calculatorInput.value = this.calculatorInput.value.slice(0, -1);
